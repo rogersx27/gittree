@@ -5,7 +5,7 @@
 
 Visor ligero del árbol de commits y ramas de un repositorio git local. Tipo GitKraken, pero mínimo y **viewer-first**: su trabajo es leer y navegar el grafo, no operar sobre él.
 
-> **Estado: en construcción.** El andamiaje del workspace está listo y las decisiones técnicas están cerradas y medidas. La implementación va por la tarea 0.1 de 21. Consulta [`specs/gittree-mvp/tasks.md`](specs/gittree-mvp/tasks.md) para el progreso real.
+> **Estado: MVP funcional.** Abre un repositorio, dibuja el grafo, muestra el detalle de un commit y refresca bajo demanda. Verificado contra un repositorio real de 110 commits con 13 merges. El progreso por tarea vive en [`specs/gittree-mvp/tasks.md`](specs/gittree-mvp/tasks.md).
 
 ## Por qué
 
@@ -23,10 +23,21 @@ Funciona en Windows y en Linux, y por ser una web local también sirve en un VPS
 
 ```bash
 pnpm install
+```
+
+```bash
 pnpm dev
 ```
 
-Eso levanta el backend y el frontend con una sola orden. Los mismos dos comandos valen en PowerShell, en Git Bash y en Linux.
+Eso levanta el backend (puerto 5175) y el frontend (puerto 5174) con una sola orden. Abre **http://localhost:5174**, escribe la ruta de un repositorio local y pulsa *Abrir*.
+
+Los mismos dos comandos valen en PowerShell, en Git Bash y en Linux. Si trabajas contra un VPS sin escritorio, reenvía el puerto por SSH:
+
+```bash
+ssh -L 5174:localhost:5174 -L 5175:localhost:5175 usuario@tu-servidor
+```
+
+La ruta del repositorio se recuerda entre sesiones, así que al volver a abrir la página carga el último que mirabas.
 
 ### Comandos disponibles
 
@@ -38,6 +49,8 @@ Eso levanta el backend y el frontend con una sola orden. Los mismos dos comandos
 | `pnpm typecheck` | TypeScript estricto en los tres paquetes |
 | `pnpm test` | Tests del núcleo |
 | `pnpm build` | Build de producción del frontend |
+
+Si `pnpm dev` falla con `EADDRINUSE`, hay otra instancia ocupando 5174 o 5175. Cambia el puerto del backend con la variable `PORT`.
 
 ## Cómo funciona
 
@@ -56,7 +69,7 @@ Están justificadas y **medidas** en [`INFORME-FASE-1.md`](INFORME-FASE-1.md). U
 
 - **Lectura vía el CLI de git** (`simple-git`), no `libgit2` ni una reimplementación en JS. `nodegit` lleva desde 2020 sin release estable y exige compilar bindings nativos; `isomorphic-git` resuelve un problema que aquí no existe, porque git ya está instalado.
 - **Layout por reserva de lanes**, la misma idea que usan `graph.c` de git y la extensión Git Graph de VS Code: un lane no pertenece a una rama, pertenece al commit padre que está esperando. Implementado con `Map` + min-heap en lugar de escaneo lineal, que degrada a O(N²) en repos con muchas ramas colgando de una base común (medido: 6.076 ms frente a 7 ms con 50.000 puntas de rama).
-- **SVG, no canvas.** Las aristas se pintan completas y solo las filas se virtualizan. Su número lo fija la cantidad de ramas históricas, no el de commits: unos 250 tramos en un repo de 50.000 commits, con un total de ~730 elementos en el DOM, muy por debajo del umbral donde SVG se degrada.
+- **SVG, no canvas.** Las aristas se pintan completas y solo las filas se virtualizan: una rama larga atraviesa la ventana visible sin empezar ni terminar en ella, y recortarla la haría desaparecer. Medido en el navegador sobre un repositorio real: los `<path>` se mantienen en **122 en cualquier posición de scroll**, mientras los círculos y las filas varían entre 43 y 55 según la ventana. Total ~450 elementos, muy por debajo del umbral donde SVG se degrada.
 - **Backend Node + navegador**, no Tauri ni Electron. El empaquetado es una fase posterior; el MVP prioriza el camino más corto a algo que funcione, y una web local es lo único que sirve además en un servidor sin escritorio.
 
 ## Estructura

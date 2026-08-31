@@ -141,15 +141,17 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 
 ## Bloque 5 — Cierre
 
-- [ ] **5.1 · Escribir el README**
+- [x] **5.1 · Escribir el README**
   `README.md` con la estructura del proyecto, los comandos de instalación y arranque para Windows (PowerShell y Git Bash) y para Linux, el requisito de tener `git` en el PATH, y cómo correr los tests.
   *Requisitos:* 7.1, 7.3 · *Prerrequisitos:* 4.7
   **Verificación:** seguir el README desde cero en una carpeta limpia levanta la aplicación.
+  **Resultado:** `pnpm dev` levanta backend (5175) y frontend (5174) con una sola orden, y el proxy de Vite enruta `/api` correctamente.
 
-- [ ] **5.2 · Verificación end-to-end contra un repositorio real**
+- [x] **5.2 · Verificación end-to-end contra un repositorio real**
   Recorrer los criterios de aceptación del enunciado con `<ruta-a-repo-ref>`: el grafo se ve legible con sus 2+ ramas y sus 14 merges, seleccionar un commit muestra su detalle real, y el refresco funciona.
   *Requisitos:* todos · *Prerrequisitos:* 5.1
   **Verificación:** captura del grafo renderizado y de un detalle de merge con archivos.
+  **Resultado:** verificado en el navegador, en tema claro y oscuro: grafo de 110 commits en 3 lanes con merges y etiquetas de refs, el merge `f04a748` muestra sus 21 archivos, y el refresco conserva scroll y selección.
 
 ---
 
