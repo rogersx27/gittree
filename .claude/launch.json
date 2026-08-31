@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "gittree-web",
+      "name": "gittree",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@gittree/web", "dev"],
-      "port": 5174
+      "runtimeArgs": ["dev"],
+      "port": 5174,
+      "autoPort": false
     }
   ]
 }
