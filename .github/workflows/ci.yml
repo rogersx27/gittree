@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v5
 
       # La version de pnpm se toma del campo packageManager del package.json
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v5
         with:
