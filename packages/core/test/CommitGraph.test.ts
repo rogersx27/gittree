@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CommitGraph } from "../src/CommitGraph";
-import { commit, TWO_BRANCHES_ONE_MERGE } from "./fixtures";
+import { commit, hash, TWO_BRANCHES_ONE_MERGE } from "./fixtures";
 
 describe("CommitGraph", () => {
   const graph = CommitGraph.fromRawCommits(TWO_BRANCHES_ONE_MERGE);
@@ -12,13 +12,13 @@ describe("CommitGraph", () => {
   });
 
   it("indexa los commits por hash", () => {
-    expect(graph.get("F")?.parents).toEqual(["A"]);
-    expect(graph.get("noexiste")).toBeUndefined();
+    expect(graph.get(hash("F"))?.parents).toEqual(["A"]);
+    expect(graph.get(hash("noexiste"))).toBeUndefined();
   });
 
   it("detecta un padre que no esta en el conjunto cargado", () => {
-    expect(graph.isDangling("A")).toBe(false);
-    expect(graph.isDangling("ausente")).toBe(true);
+    expect(graph.isDangling(hash("A"))).toBe(false);
+    expect(graph.isDangling(hash("ausente"))).toBe(true);
   });
 
   it("acepta un historial vacio", () => {

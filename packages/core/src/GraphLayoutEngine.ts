@@ -1,4 +1,5 @@
 import type { CommitGraph } from "./CommitGraph";
+import type { CommitHash } from "./CommitHash";
 import { MinHeap } from "./MinHeap";
 import type { CommitNode, EdgeKind, GraphLayout, LaneEdge } from "./types";
 
@@ -12,7 +13,7 @@ const DEFAULT_PALETTE_SIZE = 10;
 interface PendingEdge {
   readonly fromRow: number;
   readonly fromLane: number;
-  readonly parentHash: string;
+  readonly parentHash: CommitHash;
   readonly parentIndex: number;
 }
 
@@ -48,8 +49,8 @@ export class GraphLayoutEngine {
   // --- Pasada 1: cada commit recibe su lane, cada padre queda reservado ---
   private assignLanes(graph: CommitGraph): LaneAssignment {
     // activeLanes[i] = hash que el lane i esta esperando, o null si esta libre
-    const activeLanes: (string | null)[] = [];
-    const waiting = new Map<string, Waiters>();
+    const activeLanes: (CommitHash | null)[] = [];
+    const waiting = new Map<CommitHash, Waiters>();
     const free = new MinHeap();
     const nodes: CommitNode[] = [];
     const pending: PendingEdge[] = [];
@@ -60,7 +61,7 @@ export class GraphLayoutEngine {
       return reused ?? activeLanes.push(null) - 1;
     };
 
-    const addWaiter = (hash: string, lane: number): void => {
+    const addWaiter = (hash: CommitHash, lane: number): void => {
       const current = waiting.get(hash);
       if (current === undefined) {
         waiting.set(hash, lane);
@@ -73,7 +74,7 @@ export class GraphLayoutEngine {
 
     // Reserva un lane para un padre. Si ya hay uno esperandolo, la arista
     // convergira alli y no hace falta abrir otro
-    const reserveLane = (parentHash: string): void => {
+    const reserveLane = (parentHash: CommitHash): void => {
       if (waiting.has(parentHash)) return;
       const target = takeFreeLane();
       activeLanes[target] = parentHash;

@@ -1,4 +1,4 @@
-import type { CommitDetail, GraphResponse } from "@gittree/core";
+import type { CommitDetail, CommitHash, GraphResponse } from "@gittree/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiClient, ApiRequestError } from "./ApiClient";
 import { CommitDetailPanel } from "./CommitDetailPanel";
@@ -29,7 +29,7 @@ export const App = () => {
   const [graphError, setGraphError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [selectedHash, setSelectedHash] = useState<string | null>(null);
+  const [selectedHash, setSelectedHash] = useState<CommitHash | null>(null);
   const [detail, setDetail] = useState<CommitDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);

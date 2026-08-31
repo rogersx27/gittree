@@ -1,4 +1,5 @@
 import { simpleGit, type SimpleGit } from "simple-git";
+import { CommitHash } from "./CommitHash";
 import { parseRefs } from "./refs";
 import type {
   ChangedFile,
@@ -116,9 +117,10 @@ const parseGraphRecord = (record: string): RawCommit | null => {
   }
 
   return {
-    hash,
+    // git emite %H y %P en hexadecimal: no hay nada que validar aqui
+    hash: CommitHash.unchecked(hash),
     // %P llega vacio en la raiz del historial
-    parents: parents === "" ? [] : parents.split(" "),
+    parents: parents === "" ? [] : parents.split(" ").map(CommitHash.unchecked),
     refs: parseRefs(decoration),
     author: person(authorName, authorEmail),
     authoredAt,
@@ -187,9 +189,19 @@ export class GitRepository {
 
   // Detalle de un commit. Son dos llamadas a proposito: mezclar la cabecera y
   // el flujo NUL de --name-status en un solo formato es fragil de parsear
-  async readCommitDetail(hash: string): Promise<CommitDetail> {
+  async readCommitDetail(hash: CommitHash): Promise<CommitDetail> {
     const [header, files] = await Promise.all([
-      this.git.raw(["show", "-s", `--pretty=format:${DETAIL_FORMAT}`, hash]),
+      this.git.raw([
+        "show",
+        "-s",
+        `--pretty=format:${DETAIL_FORMAT}`,
+        // Segunda barrera, independiente del tipo: a partir de aqui git trata
+        // lo que venga como revision y nunca como opcion, aunque empiece por
+        // guion. El tipo ya lo garantiza; esto lo garantiza tambien si alguien
+        // relaja el tipo algun dia. Todas las opciones van antes
+        "--end-of-options",
+        hash,
+      ]),
       this.readChangedFiles(hash),
     ]);
 
@@ -210,10 +222,12 @@ export class GitRepository {
       throw new Error(`No se pudo leer el commit ${hash}`);
     }
 
-    const parentList = parents === "" ? [] : parents.split(" ");
+    const parentList =
+      parents === "" ? [] : parents.split(" ").map(CommitHash.unchecked);
 
     return {
-      hash: fullHash,
+      // git ya lo ha expandido a su forma larga y hexadecimal
+      hash: CommitHash.unchecked(fullHash),
       parents: parentList,
       author: person(authorName ?? "", authorEmail ?? ""),
       authoredAt: authoredAt ?? "",
@@ -229,16 +243,20 @@ export class GitRepository {
   // --first-parent y -m son obligatorios: sin ellos git suprime el diff de los
   // merges y --name-status devuelve cero lineas, con lo que un merge apareceria
   // sin archivos en la interfaz
-  private async readChangedFiles(hash: string): Promise<readonly ChangedFile[]> {
+  private async readChangedFiles(
+    hash: CommitHash,
+  ): Promise<readonly ChangedFile[]> {
     const raw = await this.git.raw([
       "show",
-      hash,
       "--name-status",
       "--first-parent",
       "-m",
       "--find-renames",
       "-z",
       "--pretty=format:",
+      // Todas las opciones tienen que ir antes de esta barrera
+      "--end-of-options",
+      hash,
     ]);
     return parseChangedFiles(raw);
   }

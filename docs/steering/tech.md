@@ -44,6 +44,13 @@ El backend lee **`GITTREE_API_PORT`**, no `PORT` a secas. `vite.config.ts` lee l
 - La ruta del repositorio se valida antes de usarse (`RepositoryResolver`).
 - El backend escucha solo en loopback.
 
+**El hash de un commit se valida antes de llegar a git, y su tipo lo obliga.** `git show` interpreta como *opción* cualquier argumento que empiece por guion, y `--output=fichero` le hace **escribir en disco**. Como el hash llega de la URL, un `GET /api/commits/--output=...` bastaba para que GitTree escribiera un fichero arbitrario — rompiendo la garantía de que solo lee. Hay dos barreras independientes:
+
+1. `readCommitDetail` acepta `CommitHash`, no `string`. Un valor de la URL no compila ahí sin pasar por `CommitHash.parse`, que exige `^[0-9a-f]{4,64}$`.
+2. `--end-of-options` antes del hash en las dos llamadas a `git show`: a partir de ahí git trata lo que venga como revisión, nunca como opción. Todas las demás opciones tienen que ir antes.
+
+La segunda sobra mientras la primera esté puesta. Está por si alguien relaja el tipo algún día.
+
 ## Rendimiento, con números medidos
 
 - Leer y parsear 110 commits: **68 ms**.

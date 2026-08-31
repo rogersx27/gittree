@@ -1,5 +1,6 @@
 // Contratos compartidos por los tres paquetes. Una sola definicion: server y web
 // importan de aqui, nunca redeclaran.
+import type { CommitHash } from "./CommitHash";
 
 // --- Lo que sale de git, sin interpretar ---
 
@@ -21,8 +22,8 @@ export interface Ref {
 
 // Un commit tal y como lo devuelve git log, ya parseado pero sin posicionar
 export interface RawCommit {
-  readonly hash: string;
-  readonly parents: readonly string[];
+  readonly hash: CommitHash;
+  readonly parents: readonly CommitHash[];
   readonly refs: readonly Ref[];
   readonly author: Person;
   readonly authoredAt: string;
@@ -33,7 +34,7 @@ export interface RawCommit {
 
 // Un commit ya posicionado en la rejilla del grafo
 export interface CommitNode {
-  readonly hash: string;
+  readonly hash: CommitHash;
   readonly row: number;
   readonly lane: number;
   readonly colorIndex: number;
@@ -83,8 +84,8 @@ export interface ChangedFile {
 }
 
 export interface CommitDetail {
-  readonly hash: string;
-  readonly parents: readonly string[];
+  readonly hash: CommitHash;
+  readonly parents: readonly CommitHash[];
   readonly author: Person;
   readonly authoredAt: string;
   readonly committer: Person;

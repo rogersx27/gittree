@@ -18,7 +18,9 @@ export type {
   RepoErrorCode,
 } from "./types";
 
+export type { Brand } from "./Brand";
 export { CommitGraph } from "./CommitGraph";
+export { CommitHash } from "./CommitHash";
 export { GitNotAvailableError, GitRepository } from "./GitRepository";
 export { GraphLayoutEngine } from "./GraphLayoutEngine";
 export { MinHeap } from "./MinHeap";

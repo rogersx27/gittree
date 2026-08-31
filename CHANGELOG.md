@@ -26,6 +26,10 @@ y el versionado sigue [Semantic Versioning](https://semver.org/lang/es/).
 - El historial se lee con `--branches --tags --remotes HEAD` en lugar de `--all`, que arrastra `refs/stash`.
 - El asunto del commit se colapsaba a cero ancho al estrechar la ventana; se invirtió el orden en que las columnas ceden espacio.
 
+### Seguridad
+
+- **El hash de un commit ya no llega sin validar a `git show`.** `git show` interpreta como *opción* cualquier argumento que empiece por guion, y `--output=fichero` le hace escribir en disco. Como el hash viajaba de la URL al comando, un `GET /api/commits/--output=...` bastaba para que GitTree escribiera un fichero arbitrario, rompiendo la garantía de que solo lee. Ahora hay dos barreras: el tipo `CommitHash`, que no admite un `string` sin pasar por `CommitHash.parse`, y `--end-of-options` antes del hash en las dos llamadas a git.
+
 ### Pendiente
 
 Empaquetado como aplicación de escritorio, diff línea a línea y búsqueda de commits. El seguimiento vive en [`specs/gittree-mvp/tasks.md`](specs/gittree-mvp/tasks.md).

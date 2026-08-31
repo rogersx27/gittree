@@ -51,6 +51,8 @@ pnpm typecheck && pnpm test && pnpm build
 
 **Solo `GitRepository` habla con git.** Si otra pieza necesita preguntarle algo, se le añade un método a esa clase.
 
+**El hash de un commit no es un `string`, es un `CommitHash`.** `git show` trata como *opción* todo argumento que empiece por guion, y `--output=fichero` le hace **escribir en disco**. El hash llega de la URL: sin validar, un `GET` rompe la garantía de que GitTree solo lee. `CommitHash.parse` es la única puerta, y `--end-of-options` es la segunda barrera en las llamadas a git. No se relaja ninguna de las dos.
+
 **Las aristas del grafo no se virtualizan.** Una rama larga atraviesa la ventana visible sin empezar ni terminar en ella; recortarla la haría desaparecer.
 
 **Para cambios en `packages/web`, el typecheck no basta.** Se levanta la app, se mira en el navegador, y se mide el DOM cuando hay una invariante que comprobar.

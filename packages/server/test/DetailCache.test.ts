@@ -1,16 +1,18 @@
-import type { CommitDetail } from "@gittree/core";
+import { CommitHash, type CommitDetail } from "@gittree/core";
 import { describe, expect, it } from "vitest";
 import { DetailCache } from "../src/DetailCache";
 
 // Detalle minimo: para la cache solo importa la identidad, no el contenido
-const detail = (hash: string): CommitDetail => ({
-  hash,
+const detail = (name: string): CommitDetail => ({
+  // Nombres cortos en vez de hashes reales para que el test se lea; unchecked
+  // los marca sin pasar por la validacion, que no cumplirian
+  hash: CommitHash.unchecked(name),
   parents: [],
   author: { name: "Test", email: "test@example.com" },
   authoredAt: "2026-01-01T00:00:00+00:00",
   committer: { name: "Test", email: "test@example.com" },
   committedAt: "2026-01-01T00:00:00+00:00",
-  subject: `commit ${hash}`,
+  subject: `commit ${name}`,
   body: "",
   isMerge: false,
   files: [],
