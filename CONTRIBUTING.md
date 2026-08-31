@@ -7,7 +7,7 @@ pnpm install
 pnpm dev
 ```
 
-Necesitas Node 20+, pnpm 11+ y `git` en el `PATH`. No hay dependencias nativas: `pnpm install` nunca debería compilar nada.
+Necesitas Node 22.13+, pnpm 11+ y `git` en el `PATH`. No hay dependencias nativas: `pnpm install` nunca debería compilar nada.
 
 Antes de abrir un PR:
 
