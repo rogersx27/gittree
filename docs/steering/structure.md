@@ -2,9 +2,12 @@
 
 ```
 git-ui/
+├── AGENTS.md                  Instrucciones canonicas para cualquier agente
+├── CLAUDE.md                  Puntero a AGENTS.md, sin contenido propio
 ├── .claude/
-│   ├── launch.json            Arranca `pnpm dev` (los DOS servidores) en 5174
-│   └── steering/              Este directorio
+│   └── launch.json            Arranca `pnpm dev` (los DOS servidores) en 5174
+├── docs/steering/             Este directorio. Ruta neutra a proposito:
+│                              el contexto no debe vivir bajo .claude/
 ├── .github/
 │   ├── workflows/ci.yml       Matriz Ubuntu + Windows × Node 22 + 24
 │   ├── ISSUE_TEMPLATE/
@@ -61,6 +64,12 @@ git-ui/
 `packages/core/test/` y `packages/server/test/`. El DAG de referencia vive en `fixtures.ts` y lo comparten los tests que lo necesiten — no se duplica.
 
 **`packages/web` no tiene tests todavía.** Es un hueco conocido: el reintento de `ApiClient` no está protegido contra regresiones.
+
+## Documentación de contexto
+
+`AGENTS.md` es el documento canónico y `CLAUDE.md` solo apunta a él: así cualquier agente lee lo mismo y no hay dos versiones que puedan divergir. Los documentos de steering viven en `docs/steering/`, no bajo `.claude/`, precisamente para que no dependan de una herramienta concreta.
+
+Si algo cambia, se cambia en `AGENTS.md` o en el steering correspondiente. Nunca en `CLAUDE.md`.
 
 ## Ejecución
 
