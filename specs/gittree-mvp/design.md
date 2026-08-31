@@ -183,7 +183,7 @@ const GRAPH_FORMAT = "%H%x1f%P%x1f%D%x1f%an%x1f%ae%x1f%aI%x1f%s";
 // que mete commits que no pertenecen al historial (medido: 2 en repo-ref)
 const GRAPH_ARGS = [
   "log", "--branches", "--tags", "--remotes", "HEAD",
-  "--topo-order", "-z", `--pretty=format:${GRAPH_FORMAT}`,
+  "--topo-order", "--decorate=full", "-z", `--pretty=format:${GRAPH_FORMAT}`,
   `--max-count=${limit}`,
 ];
 
@@ -195,16 +195,17 @@ const DETAIL_ARGS = [
 ];
 ```
 
-Parseo de `%D` según los formatos confirmados en repos reales:
+Parseo de `%D`. **Requiere `--decorate=full`**: con el nombre corto, la rama local `feature/api` y la remota `origin/api` son indistinguibles porque las dos llevan barra. El prefijo completo lo desambigua.
 
 | Cadena en `%D` | Se convierte en |
 |---|---|
-| `HEAD -> main` | `{ kind: "local", name: "main", isCheckedOut: true }` |
-| `main` | `{ kind: "local", name: "main", isCheckedOut: false }` |
-| `origin/main` | `{ kind: "remote", name: "origin/main", isCheckedOut: false }` |
-| `tag: v1.0` | `{ kind: "tag", name: "v1.0", isCheckedOut: false }` |
+| `HEAD -> refs/heads/main` | `{ kind: "local", name: "main", isCheckedOut: true }` |
+| `refs/heads/feature/api` | `{ kind: "local", name: "feature/api", isCheckedOut: false }` |
+| `refs/remotes/origin/main` | `{ kind: "remote", name: "origin/main", isCheckedOut: false }` |
+| `refs/tags/v1.0` | `{ kind: "tag", name: "v1.0", isCheckedOut: false }` |
 | `HEAD` (solo) | `{ kind: "head", name: "HEAD", isCheckedOut: false }` — detached |
-| `origin/HEAD` | se descarta: es un alias, no una posición propia |
+| `refs/remotes/origin/HEAD` | se descarta: es un alias, no una posición propia |
+| `refs/stash`, `refs/notes/*` | se descartan: no son posiciones de rama |
 
 ---
 
@@ -266,7 +267,8 @@ Aquí vive la complejidad. Función pura `CommitGraph → GraphLayout`: mismos c
 
 ```ts
 export class GraphLayoutEngine {
-  constructor(private readonly palette: readonly string[] = DEFAULT_PALETTE) {}
+  // Solo el tamano del ciclo: los colores concretos son cosa del renderer
+  constructor(private readonly paletteSize: number = DEFAULT_PALETTE_SIZE) {}
 
   // Dos pasadas: la primera asigna lanes, la segunda resuelve el toRow de
   // cada arista, que no se conoce hasta haber visto al padre
@@ -284,7 +286,7 @@ export class GraphLayoutEngine {
 
 **Pasada 2 — resolución de aristas.** Las aristas se emiten con el hash del padre; un `map` final las convierte en `toRow`/`toLane` consultando el índice de nodos. Un padre ausente deja `toRow: null` y se pinta como cabo suelto hacia abajo, sin romper nada.
 
-El color se deriva del índice de lane en el momento de abrirlo, y se recicla con él: `colorIndex = lane % palette.length` (Requirement 3.6).
+El color se deriva del índice de lane en el momento de abrirlo, y se recicla con él: `colorIndex = lane % paletteSize` (Requirement 3.6). El engine emite solo el indice; los valores hex viven en el renderer.
 
 ### 3.4 `GraphRenderer`
 
@@ -423,18 +425,20 @@ El engine es una función pura, así que se testea sin git, sin servidor y sin D
 DAG de referencia — dos ramas y un merge, el mínimo que pide el criterio de aceptación:
 
 ```
-row 0  M   merge         parents: F, B
+row 0  M   merge         parents: [B, F]
 row 1  |\
-row 2  | F  feature      parents: A
-row 3  B |  main         parents: A
+row 2  B |  main          parents: [A]
+row 3  | F  feature       parents: [A]
 row 4  |/
-row 5  A   base          parents: (raiz)
+row 5  A   base          parents: []
 ```
 
 Los dos tests:
 
 1. **Lanes y filas.** `A` y `B` comparten lane 0 (el primer padre hereda el lane); `F` ocupa el lane 1; `M` vuelve al lane 0. Verifica los puntos 3.1, 3.2 y 3.3.
 2. **Aristas de merge.** `M` emite exactamente dos aristas, una a cada padre, y la que va a `F` cambia de lane mientras la que va a `B` no. Verifica los puntos 2.3 y 3.5.
+
+El primer padre de `M` es `B`, no `F`: en git, el primer padre de un merge es la rama **sobre la que** se fusiona. Con el orden invertido, `feature` heredaria el lane de `main` y el layout saldria al reves.
 
 Un tercero, barato y valioso: **determinismo** — ejecutar `layout()` dos veces sobre la misma entrada y comparar el resultado serializado (Requirement 3.4).
 
