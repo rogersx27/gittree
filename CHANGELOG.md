@@ -11,7 +11,7 @@ y el versionado sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 - Workspace pnpm con tres paquetes: `@gittree/core`, `@gittree/server` y `@gittree/web` (tarea 0.1).
 - Configuración de TypeScript estricta compartida, con `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` y `verbatimModuleSyntax`.
-- Integración continua en GitHub Actions sobre Ubuntu y Windows, con Node 20 y 24.
+- Integración continua en GitHub Actions sobre Ubuntu y Windows, con Node 22 y 24.
 - Informe de investigación técnica con las decisiones de arquitectura medidas (`INFORME-FASE-1.md`).
 - Especificación completa del MVP en `specs/gittree-mvp/`: requirements en formato EARS, design y 21 tareas ordenadas por dependencia.
 

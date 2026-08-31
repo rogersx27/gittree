@@ -12,7 +12,7 @@ Funciona en Windows y en Linux, y por ser una web local también sirve en un VPS
 
 ## Requisitos
 
-- **Node.js** 20 o superior
+- **Node.js** 22.13 o superior (lo exige pnpm 11)
 - **pnpm** 11 o superior (`corepack enable` lo instala desde el propio Node)
 - **git** disponible en el `PATH`
 
