@@ -43,3 +43,8 @@ jobs:
 
       - name: Ejecutar tests
         run: pnpm test
+
+      # Sin este paso, un salto de major en Vite podria romper el build de
+      # produccion y la CI seguiria en verde: typecheck y test no lo cubren
+      - name: Construir el frontend
+        run: pnpm build
