@@ -1,0 +1,14 @@
+# Normaliza todo a LF en el repositorio, sea cual sea el sistema del que venga.
+# Sin esto, un mismo archivo cambia entero al pasar de Windows a Linux
+* text=auto eol=lf
+
+# El lockfile lo gestiona pnpm: no debe aparecer en los diffs de un PR
+pnpm-lock.yaml linguist-generated=true -diff
+
+# Binarios: git no debe intentar convertir finales de linea
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
