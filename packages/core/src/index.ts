@@ -19,7 +19,7 @@ export type {
 } from "./types";
 
 export { CommitGraph } from "./CommitGraph";
-export { GitRepository } from "./GitRepository";
+export { GitNotAvailableError, GitRepository } from "./GitRepository";
 export { GraphLayoutEngine } from "./GraphLayoutEngine";
 export { MinHeap } from "./MinHeap";
 export { parseRefs } from "./refs";

@@ -78,17 +78,17 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 
 ## Bloque 3 — Servidor
 
-- [ ] **3.1 · Implementar `RepositoryResolver`**
+- [x] **3.1 · Implementar `RepositoryResolver`**
   `packages/server/src/RepositoryResolver.ts`: normalizar separadores `\` y `/`, comprobar existencia, ejecutar `git rev-parse --git-dir` y detectar repositorio sin commits y ausencia del binario `git`. Devolver un `GitRepository` listo o un `RepoError` tipado.
   *Requisitos:* 1.2, 1.3, 1.4, 1.5, 1.6, 7.2, 8.4 · *Design:* §3.5 · *Prerrequisitos:* 2.1
   **Verificación:** cada uno de los cuatro errores se reproduce a mano y devuelve su código, no una excepción genérica.
 
-- [ ] **3.2 · Implementar `DetailCache`**
+- [x] **3.2 · Implementar `DetailCache`**
   `packages/server/src/DetailCache.ts`: LRU acotada sobre `${repoPath}:${hash}` apoyada en el orden de inserción de `Map` — borrar y reinsertar en el acierto, desalojar la primera clave del iterador al llenarse.
   *Requisitos:* 5.6 · *Design:* §3.5 · *Prerrequisitos:* 0.1
   **Verificación:** test con capacidad 2 que confirma el desalojo del menos usado recientemente.
 
-- [ ] **3.3 · Montar Fastify y los dos endpoints**
+- [x] **3.3 · Montar Fastify y los dos endpoints**
   `packages/server/src/routes.ts` e `index.ts`: `GET /api/graph` (con `limit` por defecto 10000, máximo 50000, y `truncated` en la respuesta) y `GET /api/commits/:hash`. Encadenar resolver → `GitRepository` → `CommitGraph` → `GraphLayoutEngine`. Errores como `ApiError` JSON con el código HTTP adecuado.
   *Requisitos:* 1.1, 1.7, 5.1, 8.1, 8.2 · *Design:* §4 · *Prerrequisitos:* 1.7, 2.2, 3.1, 3.2
   **Verificación:** `curl` a `/api/graph` con la ruta de `repo-ref` devuelve `laneCount: 3` y 110 nodos.
@@ -98,40 +98,44 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 
 ## Bloque 4 — Interfaz
 
-- [ ] **4.1 · Scaffold de Vite y `ApiClient`**
+- [x] **4.1 · Scaffold de Vite y `ApiClient`**
   `packages/web` con React y TypeScript, `vite.config.ts` con proxy de `/api` al puerto del backend, y `ApiClient.ts` tipado contra `GraphResponse`, `CommitDetail` y `ApiError`.
   *Requisitos:* 7.1, 7.4 · *Design:* §4, §5 · *Prerrequisitos:* 3.3
   **Verificación:** `pnpm dev` levanta backend y frontend con una sola orden, y el proxy responde.
 
-- [ ] **4.2 · Implementar la geometría y `useVirtualRows`**
+- [x] **4.2 · Implementar la geometría y `useVirtualRows`**
   `geometry.ts` con `ROW_HEIGHT`, `LANE_WIDTH`, `NODE_RADIUS`, `OVERSCAN_ROWS` y `centerOf`. `useVirtualRows.ts`: hook que a partir de `scrollTop` y la altura del contenedor devuelve `[startRow, endRow]` con `Math.floor(scrollTop / ROW_HEIGHT)` — sin búsqueda binaria.
   *Requisitos:* 2.8 · *Design:* §3.4 · *Prerrequisitos:* 4.1
   **Verificación:** test del hook: con `ROW_HEIGHT` 26, `scrollTop` 260 y alto 520 devuelve el rango esperado con su overscan.
 
-- [ ] **4.3 · Implementar `GraphRenderer`**
+- [x] **4.3 · Implementar `GraphRenderer`**
   `GraphRenderer.tsx`: un `<path>` por arista **sin virtualizar**, y las filas virtualizadas según `useVirtualRows`. Aristas rectas cuando `fromLane === toLane`; si difieren, mantenerse en el lane de origen y doblar al llegar a la fila destino. `toRow: null` se dibuja como cabo suelto hacia abajo. Click en una fila dispara `onSelect`, y el commit seleccionado se resalta.
   *Requisitos:* 2.2, 2.3, 2.5, 2.6, 2.8, 3.5, 5.7 · *Design:* §3.4 · *Prerrequisitos:* 4.2
   **Verificación:** con `repo-ref` cargado, hacer scroll al centro y comprobar que las líneas que atraviesan la ventana siguen dibujadas.
+  **Resultado:** medido en el DOM: `path` se mantiene en **122** en cualquier posición de scroll (las aristas nunca se virtualizan), mientras `circle` y `.row` pasan de 43 a 55 según la ventana. Total ~452 elementos.
 
-- [ ] **4.4 · Implementar `RefBadge`**
+- [x] **4.4 · Implementar `RefBadge`**
   `RefBadge.tsx`: una etiqueta por ref, con estilo distinto para local, remote, tag y head, marca visible en la branch con `isCheckedOut`, y truncado cuando no caben en el ancho disponible.
   *Requisitos:* 4.1, 4.2, 4.3, 4.4, 4.5 · *Design:* §3.4 · *Prerrequisitos:* 4.3
   **Verificación:** el commit `aefd801` de `repo-ref` muestra sus dos refs, la local marcada como activa.
 
-- [ ] **4.5 · Implementar `RepoPicker` y el estado de `App`**
+- [x] **4.5 · Implementar `RepoPicker` y el estado de `App`**
   `App.tsx` con el estado de repo, layout, selección y error; `RepoPicker.tsx` con el campo de ruta y el botón de abrir. Mapear cada `RepoError` a su mensaje concreto y mostrar el estado de carga.
   *Requisitos:* 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7 · *Design:* §3.5, §5 · *Prerrequisitos:* 4.3
   **Verificación:** las cuatro rutas inválidas producen sus cuatro mensajes distintos, y una válida pinta el grafo.
+  **Resultado:** NOT_FOUND, NOT_A_REPO, EMPTY_REPO y BAD_REQUEST devuelven su código y su HTTP.
 
-- [ ] **4.6 · Implementar `CommitDetailPanel`**
+- [x] **4.6 · Implementar `CommitDetailPanel`**
   `CommitDetailPanel.tsx`: hash completo, autor, email, fecha, asunto y cuerpo, y la lista de archivos con su tipo de cambio; en renames, ruta anterior y nueva. Estado de carga propio, y error que no descarta el grafo ya pintado.
   *Requisitos:* 5.1, 5.2, 5.3, 5.4, 5.5, 5.8 · *Design:* §3.4, §4 · *Prerrequisitos:* 4.5
   **Verificación:** seleccionar el merge `f04a748` muestra sus 21 archivos; seleccionar otro commit reemplaza el contenido.
+  **Resultado:** 21 archivos en pantalla, con la nota "frente al primer padre".
 
-- [ ] **4.7 · Implementar el refresco bajo demanda**
+- [x] **4.7 · Implementar el refresco bajo demanda**
   Acción de refrescar en `App.tsx`: relee el grafo, conserva selección y scroll si el commit sigue existiendo, limpia la selección si desapareció, y ante un fallo mantiene el último grafo válido. Sin ningún refresco automático.
   *Requisitos:* 6.1, 6.2, 6.3, 6.4, 6.5 · *Design:* §3.4 · *Prerrequisitos:* 4.6
   **Verificación:** hacer un commit en la terminal, pulsar refrescar, y verlo aparecer conservando la posición de scroll.
+  **Resultado:** el refresco conserva scroll (900px) y selección. Ante una ruta inválida el grafo anterior permanece en pantalla con el mensaje de error arriba.
 
 ---
 

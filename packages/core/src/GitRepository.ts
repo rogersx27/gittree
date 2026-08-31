@@ -49,6 +49,19 @@ interface FileScan {
   readonly previousPath: string | null;
 }
 
+// git no esta en el PATH: es distinto de que el comando falle, y el usuario
+// necesita saberlo para arreglarlo
+export class GitNotAvailableError extends Error {
+  constructor() {
+    super("No se encuentra el ejecutable de git en el PATH del sistema.");
+    this.name = "GitNotAvailableError";
+  }
+}
+
+// Un fallo al arrancar el proceso, no un fallo del comando que se le pidio
+const isGitMissing = (error: unknown): boolean =>
+  error instanceof Error && /ENOENT|spawn git/i.test(error.message);
+
 const person = (name: string, email: string): Person => ({ name, email });
 
 // Reconstruye la lista de archivos desde el flujo NUL de --name-status -z, que
@@ -124,6 +137,27 @@ export class GitRepository {
 
   get path(): string {
     return this.repoPath;
+  }
+
+  // true si la ruta esta dentro de un repositorio git. Lanza solo cuando el
+  // problema es que git no existe, porque eso no lo arregla cambiar de carpeta
+  static async isRepository(path: string): Promise<boolean> {
+    return GitRepository.probe(path, ["rev-parse", "--git-dir"]);
+  }
+
+  // Un repositorio recien creado existe pero no tiene HEAD resoluble
+  static async hasCommits(path: string): Promise<boolean> {
+    return GitRepository.probe(path, ["rev-parse", "--verify", "HEAD"]);
+  }
+
+  private static async probe(path: string, args: string[]): Promise<boolean> {
+    try {
+      await simpleGit({ baseDir: path }).raw(args);
+      return true;
+    } catch (error) {
+      if (isGitMissing(error)) throw new GitNotAvailableError();
+      return false;
+    }
   }
 
   // Historial en orden topologico, con padres y refs resueltos en una sola
