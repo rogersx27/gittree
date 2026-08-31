@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { MinHeap } from "../src/MinHeap";
+import { MinHeap } from "../../src/collection";
 
 // Vacia el heap en orden para poder comparar la secuencia completa
-const drain = (heap: MinHeap): number[] => {
+const drain = (heap: MinHeap<number>): number[] => {
   const out: number[] = [];
   while (heap.size > 0) {
     const value = heap.pop();
@@ -12,8 +12,8 @@ const drain = (heap: MinHeap): number[] => {
   return out;
 };
 
-const heapOf = (values: readonly number[]): MinHeap => {
-  const heap = new MinHeap();
+const heapOf = (values: readonly number[]): MinHeap<number> => {
+  const heap = new MinHeap<number>();
   values.forEach((value) => heap.push(value));
   return heap;
 };
@@ -24,8 +24,8 @@ describe("MinHeap", () => {
   });
 
   it("devuelve undefined cuando esta vacio", () => {
-    expect(new MinHeap().pop()).toBeUndefined();
-    expect(new MinHeap().size).toBe(0);
+    expect(new MinHeap<number>().pop()).toBeUndefined();
+    expect(new MinHeap<number>().size).toBe(0);
   });
 
   it("conserva el orden intercalando inserciones y extracciones", () => {

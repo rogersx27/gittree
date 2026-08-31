@@ -1,9 +1,6 @@
-import {
-  CommitGraph,
-  GraphLayoutEngine,
-  type ApiError,
-  type GraphResponse,
-} from "@gittree/core";
+import type { ApiError, GraphResponse } from "@gittree/core/api";
+import { CommitGraph, CommitHash } from "@gittree/core/commit";
+import { GraphLayoutEngine } from "@gittree/core/layout";
 import type { FastifyInstance } from "fastify";
 import { DetailCache } from "./DetailCache";
 import { RepositoryError, RepositoryResolver } from "./RepositoryResolver";
@@ -88,11 +85,23 @@ export const registerRoutes = (app: FastifyInstance): void => {
     "/api/commits/:hash",
     async (request, reply) => {
       const { repo } = request.query;
-      const { hash } = request.params;
       if (repo === undefined || repo.trim() === "") {
         return reply
           .status(400)
           .send({ code: "BAD_REQUEST", message: "Falta el parametro repo." });
+      }
+
+      // El hash llega de la URL y acaba siendo un argumento de `git show`. Sin
+      // esta comprobacion, un valor como "--output=fichero" no es una revision
+      // sino una opcion que hace ESCRIBIR a git, y GitTree solo lee. El tipo
+      // CommitHash existe justamente para que esto no se pueda olvidar: sin
+      // pasar por parse, la linea de abajo no compila
+      const hash = CommitHash.parse(request.params.hash);
+      if (hash === null) {
+        return reply.status(400).send({
+          code: "BAD_REQUEST",
+          message: "El hash pedido no tiene forma de hash de commit.",
+        });
       }
 
       try {

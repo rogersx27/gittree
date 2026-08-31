@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { CommitGraph } from "../src/CommitGraph";
-import { GraphLayoutEngine } from "../src/GraphLayoutEngine";
-import { commit, TWO_BRANCHES_ONE_MERGE } from "./fixtures";
+import { CommitGraph } from "../../src/commit";
+import { GraphLayoutEngine } from "../../src/layout";
+import { commit, TWO_BRANCHES_ONE_MERGE } from "../fixtures";
 
 // Atajo: construye el grafo y calcula su layout de una vez
 const layoutOf = (commits: readonly ReturnType<typeof commit>[]) =>

@@ -1,17 +1,22 @@
-import type { RawCommit } from "../src/types";
+import { CommitHash, type RawCommit } from "../src/commit";
+
+// Los fixtures usan nombres de una letra en vez de hashes reales, para que el
+// DAG se lea de un vistazo. unchecked los marca sin pasar por la validacion,
+// que es justo lo que estos nombres no cumplirian
+export const hash = (name: string): CommitHash => CommitHash.unchecked(name);
 
 // Construye un commit de prueba con lo minimo que necesita el layout: su hash y
 // sus padres. El resto de campos no influyen en las posiciones.
 export const commit = (
-  hash: string,
+  name: string,
   parents: readonly string[] = [],
 ): RawCommit => ({
-  hash,
-  parents,
+  hash: hash(name),
+  parents: parents.map(hash),
   refs: [],
   author: { name: "Test", email: "test@example.com" },
   authoredAt: "2026-01-01T00:00:00+00:00",
-  subject: `commit ${hash}`,
+  subject: `commit ${name}`,
 });
 
 // DAG de referencia: dos ramas y un merge, el minimo que pide el criterio de

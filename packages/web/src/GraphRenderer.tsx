@@ -1,4 +1,5 @@
-import type { GraphLayout, RawCommit } from "@gittree/core";
+import type { CommitHash, RawCommit } from "@gittree/core/commit";
+import type { GraphLayout } from "@gittree/core/layout";
 import { useRef } from "react";
 import {
   colorOf,
@@ -16,7 +17,7 @@ interface GraphRendererProps {
   readonly layout: GraphLayout;
   readonly commits: readonly RawCommit[];
   readonly selectedHash: string | null;
-  readonly onSelect: (hash: string) => void;
+  readonly onSelect: (hash: CommitHash) => void;
 }
 
 const shortDate = new Intl.DateTimeFormat("es", {

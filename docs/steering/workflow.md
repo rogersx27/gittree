@@ -18,7 +18,9 @@ Si un cambio no encaja en ninguna tarea, lo primero es actualizar el spec. Y si 
 - **SOLID**: una responsabilidad por clase. Si necesita dos frases para explicarse, son dos clases.
 - **TypeScript estricto.** Nada de `any`, nada de `@ts-ignore`.
 
-Los flags activos son severos a propósito: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `noUnusedLocals`. Un acceso a array devuelve `T | undefined` y hay que comprobarlo.
+Los flags activos son severos a propósito: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `noUnusedLocals`, `noPropertyAccessFromIndexSignature`, `noUncheckedSideEffectImports`, `allowUnreachableCode: false`. Un acceso a array devuelve `T | undefined` y hay que comprobarlo.
+
+`core` añade `isolatedDeclarations`: cada símbolo exportado lleva tipo explícito, para que un cambio interno no altere en silencio un tipo público. Y varios `number` y `string` del núcleo van marcados con `Brand` — `Row`, `Lane`, `ColorIndex`, `CommitHash` — y se construyen solo desde su fábrica.
 
 ## Verificar con números reales, no con impresiones
 

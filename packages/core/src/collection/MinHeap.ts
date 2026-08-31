@@ -1,20 +1,26 @@
-// Heap binario de enteros. Devuelve siempre el menor, que es lo que garantiza
-// "el lane libre mas a la izquierda" del layout: una pila LIFO seria O(1) pero
-// cambiaria posiciones y colores entre refrescos del mismo repositorio.
-export class MinHeap {
-  private readonly items: number[] = [];
+// Heap binario. Devuelve siempre el menor, que es lo que garantiza "el carril
+// libre mas a la izquierda" del layout: una pila LIFO seria O(1) pero cambiaria
+// posiciones y colores entre refrescos del mismo repositorio.
+//
+// Es generico sobre T extends number, no sobre number a secas, para que pueda
+// ser un heap de Lane sin perder la marca: `pop()` devuelve un Lane, no un
+// number que habria que volver a marcar en cada uso. La restriccion a number
+// mantiene la comparacion nativa, sin comparador inyectado ni llamada por cada
+// comparacion en la ruta caliente del layout.
+export class MinHeap<T extends number> {
+  private readonly items: T[] = [];
 
   get size(): number {
     return this.items.length;
   }
 
-  push(value: number): void {
+  push(value: T): void {
     this.items.push(value);
     this.bubbleUp(this.items.length - 1);
   }
 
   // Extrae el minimo, o undefined si el heap esta vacio
-  pop(): number | undefined {
+  pop(): T | undefined {
     const { items } = this;
     const top = items[0];
     const last = items.pop();

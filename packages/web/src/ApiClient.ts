@@ -1,4 +1,5 @@
-import type { ApiError, CommitDetail, GraphResponse } from "@gittree/core";
+import type { ApiError, GraphResponse } from "@gittree/core/api";
+import type { CommitDetail, CommitHash } from "@gittree/core/commit";
 
 // Error de la API con su codigo, para que la interfaz elija el mensaje.
 // unreachable distingue "el backend no responde todavia" de "el backend
@@ -100,7 +101,7 @@ export class ApiClient {
     return request<GraphResponse>(`/api/graph?${params.toString()}`);
   }
 
-  fetchDetail(repo: string, hash: string): Promise<CommitDetail> {
+  fetchDetail(repo: string, hash: CommitHash): Promise<CommitDetail> {
     const params = new URLSearchParams({ repo });
     return request<CommitDetail>(`/api/commits/${hash}?${params.toString()}`);
   }

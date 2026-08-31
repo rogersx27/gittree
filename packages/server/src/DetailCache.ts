@@ -1,4 +1,4 @@
-import type { CommitDetail } from "@gittree/core";
+import type { CommitDetail } from "@gittree/core/commit";
 
 // El detalle de un commit es inmutable: una vez leido, cachearlo es seguro.
 //

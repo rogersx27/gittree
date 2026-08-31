@@ -69,7 +69,7 @@ Dónde dobla no es estético: marca si el lane que continúa es el del padre o e
 
 ## Frontera cliente/servidor
 
-Los contratos viven en `packages/core/src/types.ts` y los importan los dos lados. Nunca se redeclara un tipo.
+Los contratos viven en `packages/core/src/`, un fichero por tipo y agrupados por entidad, y los importan los dos lados desde la subruta del paquete correspondiente (`@gittree/core/api`, `/commit`, `/layout`, `/ref`). Nunca se redeclara un tipo.
 
 `commits[i]` y `layout.nodes[i]` describen el mismo commit: van alineados por índice, para que el cliente no tenga que hacer join por hash.
 

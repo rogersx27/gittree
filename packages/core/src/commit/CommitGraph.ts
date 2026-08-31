@@ -1,11 +1,12 @@
-import type { RawCommit } from "./types";
+import type { CommitHash } from "./CommitHash";
+import type { RawCommit } from "./RawCommit";
 
 // Modelo puro del DAG: indexa los commits por hash conservando el orden en que
 // llegaron. No sabe nada de lanes, colores, HTTP ni React.
 export class CommitGraph {
   private constructor(
     private readonly ordered: readonly RawCommit[],
-    private readonly byHash: ReadonlyMap<string, RawCommit>,
+    private readonly byHash: ReadonlyMap<CommitHash, RawCommit>,
   ) {}
 
   // El orden topologico lo aporta git con --topo-order. Aqui solo se conserva:
@@ -24,13 +25,13 @@ export class CommitGraph {
     return this.ordered.length;
   }
 
-  get(hash: string): RawCommit | undefined {
+  get(hash: CommitHash): RawCommit | undefined {
     return this.byHash.get(hash);
   }
 
   // true si ese padre no esta en el conjunto cargado, porque el clon es shallow
   // o porque se alcanzo el limite de commits
-  isDangling(parentHash: string): boolean {
+  isDangling(parentHash: CommitHash): boolean {
     return !this.byHash.has(parentHash);
   }
 }
