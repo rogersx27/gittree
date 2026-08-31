@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CommitHash } from "../src/CommitHash";
+import { CommitHash } from "../../src/commit";
 
 describe("CommitHash", () => {
   it("acepta un hash completo tal y como lo emite git", () => {

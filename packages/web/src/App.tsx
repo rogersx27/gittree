@@ -1,4 +1,5 @@
-import type { CommitDetail, CommitHash, GraphResponse } from "@gittree/core";
+import type { GraphResponse } from "@gittree/core/api";
+import type { CommitDetail, CommitHash } from "@gittree/core/commit";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiClient, ApiRequestError } from "./ApiClient";
 import { CommitDetailPanel } from "./CommitDetailPanel";

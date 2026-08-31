@@ -38,6 +38,18 @@ Separadores: `NUL` entre registros (`-z`) y `US` (`\x1f`) entre campos. Ninguno 
 
 El backend lee **`GITTREE_API_PORT`**, no `PORT` a secas. `vite.config.ts` lee la misma variable para el destino del proxy, así que no pueden discrepar. Esto no es cosmético: con `PORT` genérico, cualquier herramienta que lo inyecte para el frontend hace que el backend le robe el puerto y la aplicación cargue sin datos.
 
+## Tipado
+
+`tsconfig.base.json` va más allá de `strict`. Además de `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` y los `noUnused*`, están activos `noPropertyAccessFromIndexSignature`, `noUncheckedSideEffectImports`, `allowUnreachableCode: false` y `allowUnusedLabels: false`.
+
+**`core` añade `isolatedDeclarations`.** Solo ahí: es el paquete que consumen los otros dos, y obliga a que cada símbolo exportado lleve tipo explícito en vez de inferido. Lo que compra es que un cambio interno no pueda alterar en silencio un tipo público.
+
+`erasableSyntaxOnly` está deliberadamente **desactivado**: rompería los cuatro constructores con propiedades de parámetro, y nada lo necesita mientras el servidor use `tsx` y el frontend Vite.
+
+**Los tipos marcados no son decoración.** `Row`, `Lane` y `ColorIndex` son los tres `number` que emite el motor, y `LaneEdge` lleva cinco: sin marca, cruzarlos compila y dibuja un grafo mal sin que nada falle. `CommitHash` va marcado por un motivo más duro, en la sección siguiente. La marca se borra al compilar — el JSON que viaja por la red es idéntico.
+
+Un tipo marcado se construye solo desde su fábrica (`Lane.of`, `CommitHash.parse`), que es el único punto donde vive la aserción que el compilador no puede comprobar.
+
 ## Seguridad
 
 - Los argumentos de git van **en array**, nunca interpolados en una cadena de shell.

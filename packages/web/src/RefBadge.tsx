@@ -1,4 +1,4 @@
-import type { Ref } from "@gittree/core";
+import type { Ref } from "@gittree/core/ref";
 
 // Simbolo por tipo de ref, para distinguirlas sin depender solo del color
 const GLYPH: Readonly<Record<Ref["kind"], string>> = {

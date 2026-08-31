@@ -1,4 +1,4 @@
-import type { ChangedFile, CommitDetail } from "@gittree/core";
+import type { ChangedFile, CommitDetail } from "@gittree/core/commit";
 
 // Etiqueta corta por tipo de cambio, la misma letra que usa git
 const STATUS_LABEL: Readonly<Record<ChangedFile["status"], string>> = {

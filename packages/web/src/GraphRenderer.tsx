@@ -1,4 +1,5 @@
-import type { CommitHash, GraphLayout, RawCommit } from "@gittree/core";
+import type { CommitHash, RawCommit } from "@gittree/core/commit";
+import type { GraphLayout } from "@gittree/core/layout";
 import { useRef } from "react";
 import {
   colorOf,

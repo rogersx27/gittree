@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CommitGraph } from "../src/CommitGraph";
-import { commit, hash, TWO_BRANCHES_ONE_MERGE } from "./fixtures";
+import { CommitGraph } from "../../src/commit";
+import { commit, hash, TWO_BRANCHES_ONE_MERGE } from "../fixtures";
 
 describe("CommitGraph", () => {
   const graph = CommitGraph.fromRawCommits(TWO_BRANCHES_ONE_MERGE);

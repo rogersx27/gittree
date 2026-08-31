@@ -1,5 +1,4 @@
-import { CommitHash } from "../src/CommitHash";
-import type { RawCommit } from "../src/types";
+import { CommitHash, type RawCommit } from "../src/commit";
 
 // Los fixtures usan nombres de una letra en vez de hashes reales, para que el
 // DAG se lea de un vistazo. unchecked los marca sin pasar por la validacion,

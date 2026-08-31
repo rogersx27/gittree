@@ -1,5 +1,5 @@
 import type { CommitHash } from "./CommitHash";
-import type { RawCommit } from "./types";
+import type { RawCommit } from "./RawCommit";
 
 // Modelo puro del DAG: indexa los commits por hash conservando el orden en que
 // llegaron. No sabe nada de lanes, colores, HTTP ni React.
