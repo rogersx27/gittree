@@ -21,37 +21,39 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 
 ## Bloque 1 — Núcleo puro (sin git, sin red, sin DOM)
 
-- [ ] **1.1 · Definir los contratos compartidos**
+- [x] **1.1 · Definir los contratos compartidos**
   Escribir `packages/core/src/types.ts` con `Person`, `Ref`, `RefKind`, `RawCommit`, `CommitNode`, `LaneEdge`, `EdgeKind`, `GraphLayout`, `ChangeStatus`, `ChangedFile`, `CommitDetail`, `GraphResponse` y `ApiError`. Todo `readonly`. Exportarlos desde el índice del paquete para que `server` y `web` los importen sin duplicar.
   *Requisitos:* base de todos · *Design:* §2 · *Prerrequisitos:* 0.1
   **Verificación:** `tsc --noEmit` limpio; ningún tipo se define dos veces en el repo.
 
-- [ ] **1.2 · Implementar `MinHeap`**
+- [x] **1.2 · Implementar `MinHeap`**
   `packages/core/src/MinHeap.ts`: heap binario de enteros con `push`, `pop` y `size`, sin asignar objetos por entrada. Es lo que garantiza "el lane libre más a la izquierda" en O(log L).
   *Requisitos:* 3.3 · *Design:* §3.3 · *Prerrequisitos:* 0.1
   **Verificación:** test que inserta `[5,1,4,2]` y comprueba que sale `[1,2,4,5]`.
 
-- [ ] **1.3 · Implementar el parseo de refs**
+- [x] **1.3 · Implementar el parseo de refs**
   `packages/core/src/refs.ts`: función pura que convierte la cadena de `%D` en `Ref[]`, cubriendo los seis casos de la tabla del design (`HEAD -> x`, nombre pelado, `origin/x`, `tag: x`, `HEAD` solo, y el descarte de `origin/HEAD`). Una cadena vacía devuelve lista vacía.
   *Requisitos:* 4.2, 4.3, 4.4 · *Design:* §2 · *Prerrequisitos:* 1.1
-  **Verificación:** test con las cadenas reales tomadas de `repo-ref`, incluida `HEAD -> feature/ui-polish, origin/feature/ui-polish`.
+  **Verificación:** test con las cadenas reales tomadas de `repo-ref`, incluida `HEAD -> refs/heads/feature/ui-polish, refs/remotes/origin/feature/ui-polish`.
+  **Resultado:** hecho con `--decorate=full`. Sin ese flag el parseo es ambiguo: `feature/x` (local) y `origin/x` (remota) llevan barra las dos.
 
-- [ ] **1.4 · Implementar `CommitGraph`**
+- [x] **1.4 · Implementar `CommitGraph`**
   `packages/core/src/CommitGraph.ts`: `fromRawCommits` construye el índice `hash → RawCommit` conservando el orden recibido; `commits`, `get` e `isDangling`. Sin recalcular el orden topológico.
   *Requisitos:* 2.1 · *Design:* §3.2 · *Prerrequisitos:* 1.1
   **Verificación:** test que confirma que `commits` preserva el orden de entrada y que `isDangling` detecta un padre ausente.
 
-- [ ] **1.5 · Implementar la pasada 1 del `GraphLayoutEngine`: asignación de lanes**
+- [x] **1.5 · Implementar la pasada 1 del `GraphLayoutEngine`: asignación de lanes**
   `packages/core/src/GraphLayoutEngine.ts`: recorrido único con `waiting: Map<hash, lane | lane[]>` y el `MinHeap` de huecos. Cubre los cinco pasos del design: punta de rama, convergencia, herencia del lane por el primer padre, reserva de lane por cada padre adicional, y liberación en la raíz. Las aristas se emiten con el **hash** del padre, todavía sin `toRow`.
   *Requisitos:* 2.2, 2.3, 2.4, 3.1, 3.2, 3.3, 3.6 · *Design:* §3.3 · *Prerrequisitos:* 1.2, 1.4
   **Verificación:** sobre el DAG de referencia del design, `A` y `B` caen en el lane 0, `F` en el lane 1 y `M` vuelve al lane 0.
+  **Resultado:** correcto. Se corrigió el DAG del design: los padres del merge son `[B, F]`, no `[F, B]` — en git el primer padre de un merge es la rama sobre la que se fusiona.
 
-- [ ] **1.6 · Implementar la pasada 2: resolución de aristas**
+- [x] **1.6 · Implementar la pasada 2: resolución de aristas**
   En el mismo archivo: un `map` final que convierte cada arista pendiente en `LaneEdge` resolviendo `toRow` y `toLane` contra el índice de nodos, y dejando `toRow: null` cuando el padre no está en el conjunto cargado. Clasificar cada arista como `straight`, `branch` o `merge`.
   *Requisitos:* 2.2, 2.3, 3.5 · *Design:* §3.3 · *Prerrequisitos:* 1.5
   **Verificación:** un DAG cuyo último commit referencia un padre inexistente produce una arista con `toRow: null` en lugar de lanzar.
 
-- [ ] **1.7 · Escribir los tests del `GraphLayoutEngine`**
+- [x] **1.7 · Escribir los tests del `GraphLayoutEngine`**
   `packages/core/test/GraphLayoutEngine.test.ts` con los tres tests del design: (a) lanes y filas sobre el DAG de dos ramas y un merge, (b) el merge emite exactamente dos aristas y solo la que va a `feature` cambia de lane, (c) determinismo — dos ejecuciones sobre la misma entrada dan resultados idénticos al serializar.
   *Requisitos:* 3.4 y criterio de aceptación del enunciado · *Design:* §6 · *Prerrequisitos:* 1.6
   **Verificación:** `pnpm test` pasa en verde sin que exista aún servidor ni UI.
@@ -60,15 +62,17 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 
 ## Bloque 2 — Lectura del repositorio
 
-- [ ] **2.1 · Implementar `GitRepository.readGraph`**
+- [x] **2.1 · Implementar `GitRepository.readGraph`**
   `packages/core/src/GitRepository.ts`: ejecutar `git log --branches --tags --remotes HEAD --topo-order -z --pretty=format:...` vía `simple-git.raw()`, con `--max-count`. Partir por `NUL`, luego por `\x1f`, y mapear a `RawCommit[]` usando `refs.ts`.
   *Requisitos:* 2.7, 8.1, 8.2, 8.3 · *Design:* §2, §3.1 · *Prerrequisitos:* 1.3, 1.1
-  **Verificación:** contra `repo-ref` devuelve 110 commits (no 112: los 2 del stash quedan fuera), 1 raíz y 14 merges.
+  **Verificación:** contra `repo-ref` devuelve 110 commits (no 112: los 2 del stash quedan fuera), 1 raíz y **13** merges.
+  **Resultado:** 110 / 1 / 13. El criterio decía 14 merges y era erróneo: el merge que falta es el propio commit de stash, que tiene 3 padres y por tanto contaba como merge bajo `--all`.
 
-- [ ] **2.2 · Implementar `GitRepository.readCommitDetail`**
+- [x] **2.2 · Implementar `GitRepository.readCommitDetail`**
   En la misma clase: `git show <hash> --name-status --first-parent -m --find-renames -z`, parseando cabecera y lista de archivos. Mapear los códigos de estado (`A`, `M`, `D`, `R###`, `C###`, `T`) a `ChangeStatus`, y rellenar `previousPath` en renames y copias.
   *Requisitos:* 5.1, 5.2, 5.3, 5.4 · *Design:* §2, §3.1 · *Prerrequisitos:* 1.1
   **Verificación:** sobre el merge `f04a748` de `repo-ref` devuelve 21 archivos, **no** una lista vacía.
+  **Resultado:** 21 archivos, todos `modified`.
 
 ---
 
@@ -87,7 +91,8 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 - [ ] **3.3 · Montar Fastify y los dos endpoints**
   `packages/server/src/routes.ts` e `index.ts`: `GET /api/graph` (con `limit` por defecto 10000, máximo 50000, y `truncated` en la respuesta) y `GET /api/commits/:hash`. Encadenar resolver → `GitRepository` → `CommitGraph` → `GraphLayoutEngine`. Errores como `ApiError` JSON con el código HTTP adecuado.
   *Requisitos:* 1.1, 1.7, 5.1, 8.1, 8.2 · *Design:* §4 · *Prerrequisitos:* 1.7, 2.2, 3.1, 3.2
-  **Verificación:** `curl` a `/api/graph` con la ruta de `repo-ref` devuelve `laneCount: 5` y 110 nodos.
+  **Verificación:** `curl` a `/api/graph` con la ruta de `repo-ref` devuelve `laneCount: 3` y 110 nodos.
+  *El 5 del criterio original venía del benchmark con `--all`; `git log --graph` dibuja 3 columnas para este conjunto de refs, y el engine coincide.*
 
 ---
 
