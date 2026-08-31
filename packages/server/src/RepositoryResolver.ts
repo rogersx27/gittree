@@ -1,10 +1,7 @@
 import { access } from "node:fs/promises";
 import { resolve as resolvePath } from "node:path";
-import {
-  GitNotAvailableError,
-  GitRepository,
-  type RepoErrorCode,
-} from "@gittree/core";
+import type { RepoErrorCode } from "@gittree/core/api";
+import { GitNotAvailableError, GitRepository } from "@gittree/core/repository";
 
 // Error con codigo, para que la interfaz pueda dar un mensaje concreto en lugar
 // de un "algo ha fallado" que no dice al usuario que arreglar

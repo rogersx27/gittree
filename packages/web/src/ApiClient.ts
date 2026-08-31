@@ -1,9 +1,5 @@
-import type {
-  ApiError,
-  CommitDetail,
-  CommitHash,
-  GraphResponse,
-} from "@gittree/core";
+import type { ApiError, GraphResponse } from "@gittree/core/api";
+import type { CommitDetail, CommitHash } from "@gittree/core/commit";
 
 // Error de la API con su codigo, para que la interfaz elija el mensaje.
 // unreachable distingue "el backend no responde todavia" de "el backend

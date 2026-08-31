@@ -80,7 +80,7 @@ sequenceDiagram
 
 ## 2. Modelo de datos
 
-Contratos compartidos entre server y web. Viven en `packages/core/src/types.ts` y el paquete `web` los importa: una sola definición, sin duplicar tipos a ambos lados.
+Contratos compartidos entre server y web. Viven en `packages/core/src/`, un fichero por tipo y agrupados por entidad, y `server` y `web` los importan por la subruta del paquete (`@gittree/core/api`, `/commit`, `/layout`, `/ref`): una sola definición, sin duplicar tipos a ambos lados.
 
 ```ts
 // --- Lo que sale de git, sin interpretar ---
@@ -215,11 +215,11 @@ Una responsabilidad por clase. Las cuatro del enunciado, más tres piezas de apo
 
 | Componente | Archivo | Responsabilidad | Depende de |
 |---|---|---|---|
-| `GitRepository` | `packages/core/src/GitRepository.ts` | Leer el repo y devolver datos tipados | `simple-git` |
-| `CommitGraph` | `packages/core/src/CommitGraph.ts` | Modelo puro del DAG | — |
-| `GraphLayoutEngine` | `packages/core/src/GraphLayoutEngine.ts` | Posiciones de nodos y aristas | `MinHeap` |
+| `GitRepository` | `packages/core/src/repository/GitRepository.ts` | Ejecutar los comandos de git | `simple-git` |
+| `CommitGraph` | `packages/core/src/commit/CommitGraph.ts` | Modelo puro del DAG | — |
+| `GraphLayoutEngine` | `packages/core/src/layout/GraphLayoutEngine.ts` | Posiciones de nodos y aristas | `MinHeap` |
 | `GraphRenderer` | `packages/web/src/GraphRenderer.tsx` | Pintar el layout en SVG | React |
-| `MinHeap` | `packages/core/src/MinHeap.ts` | Hueco libre más a la izquierda | — |
+| `MinHeap` | `packages/core/src/collection/MinHeap.ts` | Hueco libre más a la izquierda | — |
 | `RepositoryResolver` | `packages/server/src/RepositoryResolver.ts` | Validar la ruta antes de tocar git | — |
 | `DetailCache` | `packages/server/src/DetailCache.ts` | LRU de detalles por hash | — |
 
@@ -385,16 +385,17 @@ git-ui/
 ├── README.md                         # comandos para Windows y Linux
 ├── specs/gittree-mvp/
 └── packages/
-    ├── core/
+    ├── core/                         # un tipo por fichero, por entidad
     │   ├── src/
-    │   │   ├── types.ts              # contratos compartidos
-    │   │   ├── GitRepository.ts
-    │   │   ├── CommitGraph.ts
-    │   │   ├── GraphLayoutEngine.ts
-    │   │   ├── MinHeap.ts
-    │   │   └── refs.ts               # parseo de %D
-    │   └── test/
-    │       └── GraphLayoutEngine.test.ts
+    │   │   ├── api/                  # contrato HTTP
+    │   │   ├── collection/           # MinHeap<T extends number>
+    │   │   ├── common/               # Brand, NonEmptyArray
+    │   │   ├── commit/               # CommitHash, RawCommit, CommitGraph
+    │   │   ├── layout/               # Row, Lane, ColorIndex, el motor
+    │   │   ├── ref/                  # Ref, RefKind
+    │   │   └── repository/           # git y el parseo de su salida
+    │   └── test/                     # espeja las carpetas de src/
+    │       └── layout/GraphLayoutEngine.test.ts
     ├── server/
     │   └── src/
     │       ├── index.ts              # Fastify + registro de rutas

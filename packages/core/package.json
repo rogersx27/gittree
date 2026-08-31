@@ -5,7 +5,14 @@
   "description": "Nucleo puro: lectura del repositorio, modelo del DAG y motor de layout",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./api": "./src/api/index.ts",
+    "./collection": "./src/collection/index.ts",
+    "./common": "./src/common/index.ts",
+    "./commit": "./src/commit/index.ts",
+    "./layout": "./src/layout/index.ts",
+    "./ref": "./src/ref/index.ts",
+    "./repository": "./src/repository/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

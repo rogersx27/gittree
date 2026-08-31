@@ -1,4 +1,4 @@
-import { CommitHash, type CommitDetail } from "@gittree/core";
+import { CommitHash, type CommitDetail } from "@gittree/core/commit";
 import { describe, expect, it } from "vitest";
 import { DetailCache } from "../src/DetailCache";
 

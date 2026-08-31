@@ -1,27 +1,37 @@
-// Punto de entrada publico del nucleo: contratos y las tres piezas que no
-// dependen de HTTP ni de React.
+// Punto de entrada publico del nucleo. Reexporta plano lo que atraviesa la
+// frontera con server y web; cada paquete tiene ademas su propia subruta
+// (@gittree/core/commit, /layout, /api...) declarada en package.json.
+export type { ApiError, ApiErrorCode, GraphResponse, RepoErrorCode } from "./api";
+export { MinHeap } from "./collection";
 export type {
-  ApiError,
-  ApiErrorCode,
-  ChangedFile,
-  ChangeStatus,
-  CommitDetail,
-  CommitNode,
-  EdgeKind,
-  GraphLayout,
-  GraphResponse,
-  LaneEdge,
-  Person,
-  RawCommit,
-  Ref,
-  RefKind,
-  RepoErrorCode,
-} from "./types";
-
-export type { Brand } from "./Brand";
-export { CommitGraph } from "./CommitGraph";
-export { CommitHash } from "./CommitHash";
-export { GitNotAvailableError, GitRepository } from "./GitRepository";
-export { GraphLayoutEngine } from "./GraphLayoutEngine";
-export { MinHeap } from "./MinHeap";
-export { parseRefs } from "./refs";
+  Brand,
+  BrandFactory,
+  NonEmptyArray,
+  ReadonlyNonEmptyArray,
+} from "./common";
+export {
+  CommitGraph,
+  CommitHash,
+  type ChangedFile,
+  type ChangeStatus,
+  type CommitDetail,
+  type Person,
+  type RawCommit,
+} from "./commit";
+export {
+  ColorIndex,
+  GraphLayoutEngine,
+  Lane,
+  Row,
+  type CommitNode,
+  type EdgeKind,
+  type GraphLayout,
+  type LaneEdge,
+} from "./layout";
+export type { Ref, RefKind } from "./ref";
+export {
+  GitNotAvailableError,
+  GitRepository,
+  RefParser,
+  type GitStatusCode,
+} from "./repository";

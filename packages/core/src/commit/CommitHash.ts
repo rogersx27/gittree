@@ -1,4 +1,4 @@
-import type { Brand } from "./Brand";
+import type { Brand } from "../common";
 
 // Un hash tal y como lo emite git: hexadecimal en minuscula. Se admite la forma
 // abreviada, que git resuelve igual, y hasta 64 caracteres para cubrir SHA-256
@@ -16,13 +16,14 @@ export type CommitHash = Brand<string, "CommitHash">;
 
 const isCommitHash = (raw: string): raw is CommitHash => HASH_PATTERN.test(raw);
 
-// Fabrica del tipo, en el mismo fichero que el: mantiene junta la marca con lo
-// unico que sabe crearla
+// Fabrica del tipo, en el mismo fichero que el: es el equivalente en TypeScript
+// de un factory estatico, y mantiene junta la marca con lo unico que la crea
 export const CommitHash: {
   readonly isValid: (raw: string) => raw is CommitHash;
   readonly parse: (raw: string) => CommitHash | null;
   readonly unchecked: (raw: string) => CommitHash;
 } = {
+  // Sin atajo de propiedad: isolatedDeclarations no puede inferir una shorthand
   isValid: isCommitHash,
 
   // Devuelve null en vez de lanzar: quien llama esta en la frontera HTTP y

@@ -1,4 +1,6 @@
-import type { LaneEdge } from "@gittree/core";
+// Lane se importa como valor porque graphWidth construye uno; los otros tres
+// solo se usan como tipo y no arrastran nada en tiempo de ejecucion
+import { Lane, type ColorIndex, type LaneEdge, type Row } from "@gittree/core/layout";
 
 // Constantes de la rejilla. La altura de fila es fija por diseno: es lo que hace
 // que localizar la primera fila visible sea una division, O(1), sin busqueda
@@ -26,19 +28,23 @@ export const LANE_COLORS: readonly string[] = [
   "#9aa5b8",
 ];
 
-export const colorOf = (index: number): string =>
+// Estas tres funciones toman el tipo marcado que emite el motor, no un number
+// suelto. Es lo que convierte en error de compilacion un laneX(edge.fromRow):
+// las tres coordenadas son numeros y cruzarlas dibuja un grafo mal sin que nada
+// falle. laneCount y rowCount siguen siendo number: son cuentas, no posiciones
+export const colorOf = (index: ColorIndex): string =>
   LANE_COLORS[index % LANE_COLORS.length] ?? "#9aa5b8";
 
-// Centro horizontal de un lane
-export const laneX = (lane: number): number =>
-  GRAPH_PADDING + lane * LANE_WIDTH;
+// Centro horizontal de un carril
+export const laneX = (lane: Lane): number => GRAPH_PADDING + lane * LANE_WIDTH;
 
 // Centro vertical de una fila
-export const rowY = (row: number): number => row * ROW_HEIGHT + ROW_HEIGHT / 2;
+export const rowY = (row: Row): number => row * ROW_HEIGHT + ROW_HEIGHT / 2;
 
-// Ancho que ocupa la columna del grafo para un numero dado de lanes
+// Ancho que ocupa la columna del grafo para un numero dado de carriles. Recibe
+// una cuenta, no un carril, asi que el ultimo carril hay que construirlo
 export const graphWidth = (laneCount: number): number =>
-  laneX(Math.max(laneCount - 1, 0)) + GRAPH_PADDING;
+  laneX(Lane.of(Math.max(laneCount - 1, 0))) + GRAPH_PADDING;
 
 // Traza una arista. La forma depende de su tipo:
 //   straight - vertical, hijo y padre comparten lane

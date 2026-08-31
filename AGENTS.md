@@ -49,9 +49,13 @@ pnpm typecheck && pnpm test && pnpm build
 - `--first-parent -m` — sin ellos, los archivos de un merge salen **vacíos**.
 - `--branches --tags --remotes HEAD` en vez de `--all` — `--all` arrastra `refs/stash`.
 
-**Solo `GitRepository` habla con git.** Si otra pieza necesita preguntarle algo, se le añade un método a esa clase.
+**Solo `GitRepository` ejecuta git**, y solo el paquete `core/src/repository/` conoce el formato de su salida. Si otra pieza necesita preguntarle algo a git, se le añade un método a esa clase.
 
 **El hash de un commit no es un `string`, es un `CommitHash`.** `git show` trata como *opción* todo argumento que empiece por guion, y `--output=fichero` le hace **escribir en disco**. El hash llega de la URL: sin validar, un `GET` rompe la garantía de que GitTree solo lee. `CommitHash.parse` es la única puerta, y `--end-of-options` es la segunda barrera en las llamadas a git. No se relaja ninguna de las dos.
+
+**Los tipos marcados del layout tampoco son decoración.** `Row`, `Lane` y `ColorIndex` son tres `number` que se cruzan sin que nada falle: el grafo sale mal dibujado y compila. Se construyen solo desde su fábrica (`Lane.of`). Detalle en [Estructura](docs/steering/structure.md).
+
+**El núcleo va segmentado por entidad.** Una carpeta por entidad bajo `packages/core/src/`, un tipo público por fichero, el fichero llamado como lo que exporta, y un `index.ts` por carpeta que es su superficie pública. Desde fuera se importa por subruta: `@gittree/core/commit`, `/layout`, `/api`, `/ref`, `/repository`, `/common`. El detalle está en [Estructura](docs/steering/structure.md).
 
 **Las aristas del grafo no se virtualizan.** Una rama larga atraviesa la ventana visible sin empezar ni terminar en ella; recortarla la haría desaparecer.
 

@@ -18,6 +18,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedSideEffectImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
   }
 }

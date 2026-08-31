@@ -1,10 +1,6 @@
-import {
-  CommitGraph,
-  CommitHash,
-  GraphLayoutEngine,
-  type ApiError,
-  type GraphResponse,
-} from "@gittree/core";
+import type { ApiError, GraphResponse } from "@gittree/core/api";
+import { CommitGraph, CommitHash } from "@gittree/core/commit";
+import { GraphLayoutEngine } from "@gittree/core/layout";
 import type { FastifyInstance } from "fastify";
 import { DetailCache } from "./DetailCache";
 import { RepositoryError, RepositoryResolver } from "./RepositoryResolver";

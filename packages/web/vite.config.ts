@@ -13,6 +13,18 @@ export default defineConfig({
     proxy: { "/api": `http://127.0.0.1:${API_PORT}` },
   },
   // @gittree/core se consume como fuente TypeScript enlazada desde el workspace,
-  // asi que no debe pre-empaquetarse como dependencia externa
-  optimizeDeps: { exclude: ["@gittree/core"] },
+  // asi que no debe pre-empaquetarse como dependencia externa. Cada subruta se
+  // excluye aparte: Vite resuelve el pre-bundling por especificador, no por paquete
+  optimizeDeps: {
+    exclude: [
+      "@gittree/core",
+      "@gittree/core/api",
+      "@gittree/core/collection",
+      "@gittree/core/common",
+      "@gittree/core/commit",
+      "@gittree/core/layout",
+      "@gittree/core/ref",
+      "@gittree/core/repository",
+    ],
+  },
 });

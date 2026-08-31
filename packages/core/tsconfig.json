@@ -2,7 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2022"],
-    "types": ["node"]
+    "types": ["node"],
+
+    // core lo consumen los otros dos paquetes: cada simbolo exportado tiene que
+    // llevar tipo explicito, para que su declaracion se pueda emitir mirando
+    // solo su fichero. Obliga a que la API publica este anotada a mano en vez
+    // de depender de inferencia, que es lo que hace que un cambio interno pueda
+    // alterar en silencio un tipo publico. declaration hace falta para activarlo
+    "declaration": true,
+    "isolatedDeclarations": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

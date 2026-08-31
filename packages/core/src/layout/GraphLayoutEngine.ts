@@ -1,7 +1,13 @@
-import type { CommitGraph } from "./CommitGraph";
-import type { CommitHash } from "./CommitHash";
-import { MinHeap } from "./MinHeap";
-import type { CommitNode, EdgeKind, GraphLayout, LaneEdge } from "./types";
+import { MinHeap } from "../collection";
+import type { NonEmptyArray, ReadonlyNonEmptyArray } from "../common";
+import type { CommitGraph, CommitHash } from "../commit";
+import { ColorIndex } from "./ColorIndex";
+import type { CommitNode } from "./CommitNode";
+import type { EdgeKind } from "./EdgeKind";
+import type { GraphLayout } from "./GraphLayout";
+import { Lane } from "./Lane";
+import type { LaneEdge } from "./LaneEdge";
+import { Row } from "./Row";
 
 // Numero de colores del ciclo. El engine solo emite indices: los valores
 // concretos son cosa del renderer, que es quien sabe de pintar
@@ -11,16 +17,18 @@ const DEFAULT_PALETTE_SIZE = 10;
 // padre, pero no la fila en la que ese padre caera: puede estar miles de filas
 // mas abajo, o no estar en el conjunto cargado
 interface PendingEdge {
-  readonly fromRow: number;
-  readonly fromLane: number;
+  readonly fromRow: Row;
+  readonly fromLane: Lane;
   readonly parentHash: CommitHash;
   readonly parentIndex: number;
 }
 
-// Lanes que esperan a un mismo commit. Se guarda un numero cuando es uno solo,
-// que es el caso abrumadoramente mayoritario, y solo se asigna un array cuando
-// hay convergencia real
-type Waiters = number | number[];
+// Carriles que esperan a un mismo commit. Se guarda uno suelto cuando es el
+// unico, que es el caso abrumadoramente mayoritario, y solo se asigna un array
+// cuando hay convergencia real. El array es NonEmptyArray, no Lane[]: al llegar
+// aqui siempre tiene ya dos carriles, y eso es lo que hace total el minOf de
+// abajo, que sobre un array vacio lanzaria
+type Waiters = Lane | NonEmptyArray<Lane>;
 
 // Resultado intermedio de la pasada 1
 interface LaneAssignment {
@@ -29,9 +37,11 @@ interface LaneAssignment {
   readonly laneCount: number;
 }
 
-// Menor de una lista no vacia, sin usar spread: el numero de lanes convergentes
-// es pequeno, pero reduce evita cualquier limite de argumentos
-const minOf = (values: readonly number[]): number =>
+// Menor de una lista que el tipo garantiza no vacia, sin usar spread: el numero
+// de carriles convergentes es pequeno, pero reduce evita cualquier limite de
+// argumentos. Es generico para devolver el mismo tipo marcado que recibe: con
+// `readonly number[]` habria que volver a marcar el resultado a mano
+const minOf = <T extends number>(values: ReadonlyNonEmptyArray<T>): T =>
   values.reduce((lowest, value) => (value < lowest ? value : lowest));
 
 // Convierte un DAG en posiciones. Funcion pura: los mismos commits producen
@@ -48,20 +58,20 @@ export class GraphLayoutEngine {
 
   // --- Pasada 1: cada commit recibe su lane, cada padre queda reservado ---
   private assignLanes(graph: CommitGraph): LaneAssignment {
-    // activeLanes[i] = hash que el lane i esta esperando, o null si esta libre
+    // activeLanes[i] = hash que el carril i esta esperando, o null si esta libre
     const activeLanes: (CommitHash | null)[] = [];
     const waiting = new Map<CommitHash, Waiters>();
-    const free = new MinHeap();
+    const free = new MinHeap<Lane>();
     const nodes: CommitNode[] = [];
     const pending: PendingEdge[] = [];
 
     // Toma el hueco libre mas a la izquierda, o abre un lane nuevo a la derecha
-    const takeFreeLane = (): number => {
+    const takeFreeLane = (): Lane => {
       const reused = free.pop();
-      return reused ?? activeLanes.push(null) - 1;
+      return reused ?? Lane.of(activeLanes.push(null) - 1);
     };
 
-    const addWaiter = (hash: CommitHash, lane: number): void => {
+    const addWaiter = (hash: CommitHash, lane: Lane): void => {
       const current = waiting.get(hash);
       if (current === undefined) {
         waiting.set(hash, lane);
@@ -85,7 +95,7 @@ export class GraphLayoutEngine {
       // Quien esperaba a este commit? Lookup O(1) en vez de escanear los lanes,
       // que es lo que degradaba a O(N²) en repos con muchas ramas
       const claim = waiting.get(commit.hash);
-      let lane: number;
+      let lane: Lane;
 
       if (claim === undefined) {
         // Punta de rama: nadie lo esperaba
@@ -106,9 +116,9 @@ export class GraphLayoutEngine {
 
       nodes.push({
         hash: commit.hash,
-        row,
+        row: Row.of(row),
         lane,
-        colorIndex: lane % this.paletteSize,
+        colorIndex: ColorIndex.of(lane % this.paletteSize),
       });
 
       const [firstParent] = commit.parents;
@@ -126,7 +136,12 @@ export class GraphLayoutEngine {
       // Una arista por padre, incluidas las de un merge
       commit.parents.forEach((parentHash, parentIndex) => {
         if (parentIndex > 0) reserveLane(parentHash);
-        pending.push({ fromRow: row, fromLane: lane, parentHash, parentIndex });
+        pending.push({
+          fromRow: Row.of(row),
+          fromLane: lane,
+          parentHash,
+          parentIndex,
+        });
       });
     });
 
@@ -151,7 +166,7 @@ export class GraphLayoutEngine {
           fromLane: edge.fromLane,
           toRow: null,
           toLane: edge.fromLane,
-          colorIndex: edge.fromLane % this.paletteSize,
+          colorIndex: ColorIndex.of(edge.fromLane % this.paletteSize),
           kind: "straight",
         };
       }
@@ -167,7 +182,9 @@ export class GraphLayoutEngine {
 
       // La arista toma el color del lane donde recorre la mayor parte del camino
       const colorIndex =
-        kind === "merge" ? parent.colorIndex : edge.fromLane % this.paletteSize;
+        kind === "merge"
+          ? parent.colorIndex
+          : ColorIndex.of(edge.fromLane % this.paletteSize);
 
       return {
         fromRow: edge.fromRow,
