@@ -11,10 +11,11 @@ Convenciones que aplican a todas las tareas: código en inglés, comentarios en 
 
 ## Bloque 0 — Andamiaje
 
-- [ ] **0.1 · Crear el workspace y la configuración de TypeScript**
+- [x] **0.1 · Crear el workspace y la configuración de TypeScript**
   Inicializar `package.json` raíz con pnpm workspaces (`packages/*`), los tres `package.json` de `core`, `server` y `web`, y un `tsconfig.base.json` con `strict: true`, `noUncheckedIndexedAccess: true` y `exactOptionalPropertyTypes: true`. Añadir `vitest` en la raíz y `concurrently` para el arranque conjunto.
   *Requisitos:* 7.1, 7.3 · *Design:* §5 · *Prerrequisitos:* ninguno
   **Verificación:** `pnpm install` termina sin compilar nada nativo, y `pnpm typecheck` pasa en los tres paquetes.
+  **Resultado:** hecho. La CI pasa en Ubuntu y Windows con Node 22 y 24. `engines` quedó en `>=22.13`, no en 20: pnpm 11 lo exige.
 
 ---
 

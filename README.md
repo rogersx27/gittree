@@ -1,5 +1,8 @@
 # GitTree
 
+[![CI](https://github.com/rogersx27/gittree/actions/workflows/ci.yml/badge.svg)](https://github.com/rogersx27/gittree/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Visor ligero del árbol de commits y ramas de un repositorio git local. Tipo GitKraken, pero mínimo y **viewer-first**: su trabajo es leer y navegar el grafo, no operar sobre él.
 
 > **Estado: en construcción.** El andamiaje del workspace está listo y las decisiones técnicas están cerradas y medidas. La implementación va por la tarea 0.1 de 21. Consulta [`specs/gittree-mvp/tasks.md`](specs/gittree-mvp/tasks.md) para el progreso real.
