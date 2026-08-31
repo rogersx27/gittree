@@ -1,0 +1,23 @@
+{
+  "name": "@gittree/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nucleo puro: lectura del repositorio, modelo del DAG y motor de layout",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "simple-git": "^3.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,19 @@
+version: 2
+
+updates:
+  # Dependencias de npm en los tres paquetes del workspace
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      # Agrupa las actualizaciones menores para no llenar la lista de PRs
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # Las propias actions del workflow de CI
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

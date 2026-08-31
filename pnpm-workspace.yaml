@@ -1,0 +1,7 @@
+packages:
+  - "packages/*"
+
+# pnpm 11 exige aprobar cada postinstall. esbuild lo necesita para enlazar su
+# binario nativo, del que dependen Vite y Vitest
+allowBuilds:
+  esbuild: true

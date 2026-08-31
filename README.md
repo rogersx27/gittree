@@ -1,0 +1,78 @@
+# GitTree
+
+Visor ligero del árbol de commits y ramas de un repositorio git local. Tipo GitKraken, pero mínimo y **viewer-first**: su trabajo es leer y navegar el grafo, no operar sobre él.
+
+> **Estado: en construcción.** El andamiaje del workspace está listo y las decisiones técnicas están cerradas y medidas. La implementación va por la tarea 0.1 de 21. Consulta [`specs/gittree-mvp/tasks.md`](specs/gittree-mvp/tasks.md) para el progreso real.
+
+## Por qué
+
+Los clientes git de escritorio son pesados y hacen mucho más de lo que uno necesita en el día a día. GitTree hace una sola cosa: dibujar el historial de forma legible y dejarte inspeccionar un commit. Nada de escritura, nada de red.
+
+Funciona en Windows y en Linux, y por ser una web local también sirve en un VPS sin entorno gráfico — donde una app de escritorio no correría.
+
+## Requisitos
+
+- **Node.js** 20 o superior
+- **pnpm** 11 o superior (`corepack enable` lo instala desde el propio Node)
+- **git** disponible en el `PATH`
+
+## Arranque
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Eso levanta el backend y el frontend con una sola orden. Los mismos dos comandos valen en PowerShell, en Git Bash y en Linux.
+
+### Comandos disponibles
+
+| Comando | Qué hace |
+|---|---|
+| `pnpm dev` | Levanta backend y frontend a la vez |
+| `pnpm dev:server` | Solo el backend |
+| `pnpm dev:web` | Solo el frontend |
+| `pnpm typecheck` | TypeScript estricto en los tres paquetes |
+| `pnpm test` | Tests del núcleo |
+| `pnpm build` | Build de producción del frontend |
+
+## Cómo funciona
+
+Cuatro piezas con una responsabilidad cada una. El núcleo es TypeScript puro: no conoce HTTP ni React, y por eso el motor de layout se puede testear aislado.
+
+| Pieza | Responsabilidad |
+|---|---|
+| `GitRepository` | Única parte que habla con git. Devuelve commits, padres y refs |
+| `CommitGraph` | Modelo puro del DAG. Sin dependencias de render |
+| `GraphLayoutEngine` | Convierte el DAG en posiciones: lanes, filas y aristas |
+| `GraphRenderer` | Solo pinta en SVG lo que el engine calculó |
+
+### Decisiones técnicas
+
+Están justificadas y **medidas** en [`INFORME-FASE-1.md`](INFORME-FASE-1.md). Un resumen:
+
+- **Lectura vía el CLI de git** (`simple-git`), no `libgit2` ni una reimplementación en JS. `nodegit` lleva desde 2020 sin release estable y exige compilar bindings nativos; `isomorphic-git` resuelve un problema que aquí no existe, porque git ya está instalado.
+- **Layout por reserva de lanes**, la misma idea que usan `graph.c` de git y la extensión Git Graph de VS Code: un lane no pertenece a una rama, pertenece al commit padre que está esperando. Implementado con `Map` + min-heap en lugar de escaneo lineal, que degrada a O(N²) en repos con muchas ramas colgando de una base común (medido: 6.076 ms frente a 7 ms con 50.000 puntas de rama).
+- **SVG, no canvas.** Las aristas se pintan completas y solo las filas se virtualizan. Su número lo fija la cantidad de ramas históricas, no el de commits: unos 250 tramos en un repo de 50.000 commits, con un total de ~730 elementos en el DOM, muy por debajo del umbral donde SVG se degrada.
+- **Backend Node + navegador**, no Tauri ni Electron. El empaquetado es una fase posterior; el MVP prioriza el camino más corto a algo que funcione, y una web local es lo único que sirve además en un servidor sin escritorio.
+
+## Estructura
+
+```
+packages/
+├── core/      Núcleo puro: GitRepository, CommitGraph, GraphLayoutEngine
+├── server/    Backend Fastify de solo lectura
+└── web/       Interfaz React + SVG
+specs/
+└── gittree-mvp/   requirements · design · tasks
+```
+
+## Alcance
+
+**Dentro:** abrir un repo por su ruta, renderizar el grafo con lanes de color y etiquetas de refs, seleccionar un commit y ver su detalle, refrescar bajo demanda.
+
+**Fuera:** cualquier operación de escritura (commit, rebase, cherry-pick, staging, resolución de conflictos), operaciones de red, y el diff línea a línea. GitTree nunca modifica tu repositorio ni accede a la red.
+
+## Licencia
+
+[MIT](LICENSE)

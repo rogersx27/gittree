@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Decisiones técnicas ya tomadas
+    url: https://github.com/rogersx27/gittree/blob/main/INFORME-FASE-1.md
+    about: Por qué simple-git, por qué SVG y por qué no Tauri, con las mediciones que lo respaldan.
+  - name: Especificación del MVP
+    url: https://github.com/rogersx27/gittree/tree/main/specs/gittree-mvp
+    about: Requirements, design y las 21 tareas de implementación.

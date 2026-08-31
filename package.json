@@ -1,0 +1,26 @@
+{
+  "name": "gittree",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Visor ligero del arbol de commits y ramas de un repositorio git local",
+  "license": "MIT",
+  "author": "Juan Pablo Guevara Lopez",
+  "type": "module",
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta \"pnpm --filter @gittree/server dev\" \"pnpm --filter @gittree/web dev\"",
+    "dev:server": "pnpm --filter @gittree/server dev",
+    "dev:web": "pnpm --filter @gittree/web dev",
+    "build": "pnpm --filter @gittree/web build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm --filter @gittree/core test:watch"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3"
+  }
+}

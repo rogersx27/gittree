@@ -1,0 +1,34 @@
+name: Proponer una mejora
+description: Una idea para que GitTree sea más útil
+labels: [enhancement]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GitTree es un **visor**: no ejecuta operaciones que modifiquen el
+        repositorio ni que accedan a la red. Las propuestas en esa dirección
+        se cierran por estar fuera de alcance, no por falta de interés.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qué problema resuelve
+      description: Empieza por la molestia concreta, no por la solución
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Qué propones
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Alcance
+      options:
+        - label: Esta propuesta no requiere escribir en el repositorio ni acceder a la red
+          required: true

@@ -1,0 +1,54 @@
+name: Reportar un fallo
+description: Algo no funciona como debería
+labels: [bug]
+
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Qué pasó
+      description: Qué esperabas ver y qué viste en su lugar
+      placeholder: Al abrir un repo con dos ramas, el merge aparece sin la línea de entrada.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Cómo reproducirlo
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: repo-shape
+    attributes:
+      label: Forma del repositorio
+      description: Aproximado, si el fallo depende del historial
+      placeholder: ~500 commits, 12 ramas, 30 merges
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema operativo
+      options:
+        - Windows (PowerShell)
+        - Windows (Git Bash)
+        - Linux
+        - macOS
+        - WSL
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versiones
+      description: Resultado de `node -v`, `pnpm -v` y `git --version`
+    validations:
+      required: true
