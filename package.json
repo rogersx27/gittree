@@ -20,7 +20,7 @@
     "test:watch": "pnpm --filter @gittree/core test:watch"
   },
   "devDependencies": {
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "typescript": "^7.0.2"
   }
 }
